@@ -1,79 +1,78 @@
-def stencil(data, f, width):
-    """
-    1) perform a stencil using the filter function f with 'width', on list data.
-    2) return the resulting list output.
-    3) note that if len(data) is k, len(output) would be k - width + 1.
-    4) f will accept input a list of size 'width' and return a single number.
+import numpy as np
+import math as m
+import scipy.stats as stats
+from scipy.stats import norm
+from scipy.stats import t
 
-    :param data: list
-    :param f: function
-    :param width: int
-    :return output: list
-    """
-    output = []
-    k = len(data)
-    for i in range(k - width + 1):
-        window = data[i: i + width]
-        val = f(window)
-        output.append(val)
-    return output
+myFile = open('city_vehicle_survey.txt')
+data1 = myFile.readlines()
+data1 = [float(x) for x in data1]
+myFile.close()
 
-def create_box(box):
-    """
-    1) This function takes in a list, box.
-    The box_filter function defined below accepts a list L of length len(box) and returns a simple
-    convolution of it with the list, box.
 
-    2) The meaning of this box filter is as follows:
-    for each element of input list L, multiply L[i] by box[len(box) - 1  - i],
-    sum the results of all of these multiplications and return the sum.
+print('Problem 2 Answers:')
+n = len(data1)
+xbar = np.mean(data1)
+sd = np.std(data1, ddof=1)
+se = sd / m.sqrt(n)
+z = (xbar - 5) / se
+p = 2 * (1 - norm.cdf(abs(z)))
+print('Sample size:', n)
+print('Sample mean:', round(xbar, 4))
+print('Standard error:', round(se, 4))
+print('z score:', round(z, 4))
+print('p-value:', round(p, 4))
+if p < 0.05:
+    print('Significant at 0.05')
+else:
+    print('Not significant at 0.05')
+if p < 0.10:
+    print('Significant at 0.10')
+else:
+    print('Not significant at 0.10')
 
-    3) For a box of length 3, box_filter(L) should return:
-      (box[2] * L[0] + box[1] * L[1] + box[0] * L[2]),
-      similarly, for a box of length 4, box_filter should return:
-      (box[3] * L[0] + box[2] * L[1] + box[1] * L[2] + box[0] * L[3])
+print('Problem 3 Answers:')
+z_crit = norm.ppf(0.975)
+max_se = abs(xbar - 5) / z_crit
+min_n = m.ceil((sd / max_se) ** 2)
+print('Largest standard error:', round(max_se, 4))
+print('Minimum sample size:', min_n)
 
-    The function create_box returns the box_filter function, as well as the length
-    of the input list box
+print('Problem 5 Answers:')
 
-    :param box: list
-    :return box_filter: function, len(box): int
-    """
 
-    n = len(box)
+myFile1 = open('vehicle_data_1.txt')
+data1 = myFile1.readlines()
 
-    def box_filter(L):
-        if len(L) != n:
-            print(f"Calling box filter with the wrong length list. Expected length of list should be {n}.")
-            return 0
+myFile2 = open('vehicle_data_2.txt')
+data2 = myFile2.readlines()
 
-        total = 0.0
-        for i in range(n):
-            total += L[i] * box[n - 1 - i]
-        return total
+data1 = [float(x) for x in data1]
+data2 = [float(y) for y in data2]
+myFile1.close()
+myFile2.close()
 
-    return box_filter, n
-
-if __name__ == '__main__':
-    # The block of code under the `if __name__ == '__main__':` statement is only executed when the script is run as the main program.
-    # This block is not executed if the script is imported as a module.
-    
-    def mov_avg(L):
-        # The `mov_avg` function takes in a list `L` and returns the moving average of its elements.
-        return float(sum(L)) / 3
-    
-    # Define a function `sum_sq` that takes in a list `L` and returns the sum of the squares of the elements in `L`.
-    def sum_sq(L):
-        return sum([i ** 2 for i in L])
-    
-    data = [2,4,6,8,10,10,-3,-6,-7]
-    
-    print(stencil(data, mov_avg, 3))
-    print(stencil(data, sum_sq, 5))
-    
-    # note that this creates a moving average!
-    box_f1, width1 = create_box([1.0 / 4, 1.0 / 4, 1.0 / 4, 1.0/4])
-    print(stencil(data, box_f1, width1))
-    
-    box_f2, width2 = create_box([-0.2, -0.3, 0.3, 0.2])
-    print(stencil(data, box_f2, width2))
+n1 = len(data1)
+n2 = len(data2)
+mean1 = np.mean(data1)
+mean2 = np.mean(data2)
+var1 = np.std(data1, ddof=1) ** 2
+var2 = np.std(data2, ddof=1) ** 2
+se2 = m.sqrt(var1 / n1 + var2 / n2)
+z2 = (mean1 - mean2) / se2
+p2 = 2 * norm.cdf(-abs(z2))
+print('Sample size 1:', n1)
+print('Sample size 2:', n2)
+print('Sample mean 1:', round(mean1, 4))
+print('Sample mean 2:', round(mean2, 4))
+print('Standard error:', round(se2, 4))
+print('z score:', round(z2, 4))
+print('p-value:', p2)
+if p2 < 0.05:
+    print('Significant at 0.05')
+else:
+    print('Not significant at 0.05')
+if p2 < 0.10:
+    print('Significant at 0.10')
+else:
+    print('Not significant at 0.10')
